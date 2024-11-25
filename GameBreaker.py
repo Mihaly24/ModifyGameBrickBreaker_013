@@ -147,7 +147,7 @@ class Game(tk.Frame):
         self.height = 450
         self.canvas = tk.Canvas(self, bg='#FF78F0',
                                 width=self.width,
-                                height=self.height,)
+                                height=self.height)
         self.canvas.pack()
         self.pack()
 
@@ -173,6 +173,20 @@ class Game(tk.Frame):
         self.canvas.bind('<Right>',
                          lambda _: self.paddle.move(15))
 
+        # Add thorns at the bottom
+        self.add_thorns()
+
+    def add_thorns(self):
+        """Add thorns at the bottom of the game area."""
+        thorn_height = 10
+        for x in range(0, self.width, 20):
+            self.canvas.create_polygon(
+                x, self.height,
+                x + 10, self.height - thorn_height,
+                x + 20, self.height,
+                fill='#000000',
+                outline='#000000'
+            )
     def setup_game(self):
         """Set up the game by creating the ball and drawing the HUD."""
         self.add_ball()
@@ -264,4 +278,5 @@ if __name__ == '__main__':
     root.title('Brick Breaker (Expert Mode 😈)')
     game = Game(root)
     game.mainloop()
+
 
