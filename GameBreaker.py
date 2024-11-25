@@ -24,7 +24,7 @@ class Ball(GameObject):
     def __init__(self, canvas, x, y):
         self.radius = 10
         self.direction = [1, -1]
-        self.speed = 7
+        self.speed = 8
         item = canvas.create_oval(x-self.radius, y-self.radius,
                                   x+self.radius, y+self.radius,
                                   fill='#B6FFFA')
@@ -109,15 +109,11 @@ class Brick(GameObject):
     def hit(self):
         """Hit the brick and decrease its hits."""
         self.hits -= 1
-        if self.hits == 0:
-            coords = self.get_position()
-            for i in range(5):
-                self.canvas.after(i * 100, lambda: self.canvas.itemconfig(self.item, fill='red'))
-                self.canvas.after(i * 100 + 50, lambda: self.canvas.itemconfig(self.item, fill=''))
-            self.canvas.after(500, self.delete)
+        if self.hits <= 0:
+            self.delete()
         else:
-            self.canvas.itemconfig(self.item,
-                                    fill=Brick.COLORS[self.hits])
+            new_color = Brick.COLORS.get(self.hits, '')
+            self.canvas.itemconfig(self.item, fill=new_color)
 
 
 class Game(tk.Frame):
@@ -233,12 +229,12 @@ class Game(tk.Frame):
         for obj in objects:
             if isinstance(obj, Brick):
                 self.score += 10
+                if obj.hits <= 0:
+                    self.score += 10
                 self.update_hud()
-
 
 if __name__ == '__main__':
     root = tk.Tk()
     root.title('Break those Bricks!')
     game = Game(root)
     game.mainloop()
-
