@@ -1,21 +1,26 @@
 import tkinter as tk
 
 class GameObject(object):
+    """A generic game object."""
     def __init__(self, canvas, item):
         self.canvas = canvas
         self.item = item
 
     def get_position(self):
+        """Get the position of the object."""
         return self.canvas.coords(self.item)
 
     def move(self, x, y):
+        """Move the object by x, y."""
         self.canvas.move(self.item, x, y)
 
     def delete(self):
+        """Delete the object."""
         self.canvas.delete(self.item)
 
 
 class Ball(GameObject):
+    """A ball that bounces and moves."""
     def __init__(self, canvas, x, y):
         self.radius = 10
         self.direction = [1, -1]
@@ -26,6 +31,7 @@ class Ball(GameObject):
         super(Ball, self).__init__(canvas, item)
 
     def update(self):
+        """Update the position of the ball."""
         coords = self.get_position()
         width = self.canvas.winfo_width()
         if coords[0] <= 0 or coords[2] >= width:
@@ -37,6 +43,7 @@ class Ball(GameObject):
         self.move(x, y)
 
     def collide(self, game_objects):
+        """Check for collisions with the game objects."""
         coords = self.get_position()
         x = (coords[0] + coords[2]) * 0.5
         if len(game_objects) > 1:
@@ -57,6 +64,7 @@ class Ball(GameObject):
 
 
 class Paddle(GameObject):
+    """A paddle that can move left and right."""
     def __init__(self, canvas, x, y):
         self.width = 50
         self.height = 10
@@ -69,9 +77,11 @@ class Paddle(GameObject):
         super(Paddle, self).__init__(canvas, item)
 
     def set_ball(self, ball):
+        """Set the ball that is attached to the paddle."""
         self.ball = ball
 
     def move(self, offset):
+        """Move the paddle by offset."""
         coords = self.get_position()
         width = self.canvas.winfo_width()
         if coords[0] + offset >= 0 and coords[2] + offset <= width:
@@ -81,6 +91,7 @@ class Paddle(GameObject):
 
 
 class Brick(GameObject):
+    """A brick that can be hit and destroyed."""
     COLORS = {1: '#15F5BA', 2: '#836FFF', 3: '#211951', 4: '#000000'}
 
     def __init__(self, canvas, x, y, hits):
@@ -96,6 +107,7 @@ class Brick(GameObject):
         super(Brick, self).__init__(canvas, item)
 
     def hit(self):
+        """Hit the brick and decrease its hits."""
         self.hits -= 1
         if self.hits == 0:
             coords = self.get_position()
@@ -109,6 +121,7 @@ class Brick(GameObject):
 
 
 class Game(tk.Frame):
+    """The main game class."""
     def __init__(self, master):
         super(Game, self).__init__(master)
         self.lives = 3
@@ -140,6 +153,7 @@ class Game(tk.Frame):
                          lambda _: self.paddle.move(10))
 
     def setup_game(self):
+        """Set up the game by creating the ball and drawing the HUD."""
         self.add_ball()
         self.update_hud()
         self.text = self.draw_text(300, 200,
@@ -147,6 +161,7 @@ class Game(tk.Frame):
         self.canvas.bind('<space>', lambda _: self.start_game())
 
     def add_ball(self):
+        """Add a new ball to the game."""
         if self.ball is not None:
             self.ball.delete()
         paddle_coords = self.paddle.get_position()
@@ -155,15 +170,18 @@ class Game(tk.Frame):
         self.paddle.set_ball(self.ball)
 
     def add_brick(self, x, y, hits):
+        """Add a new brick to the game."""
         brick = Brick(self.canvas, x, y, hits)
         self.items[brick.item] = brick
 
     def draw_text(self, x, y, text, size='40'):
-        font = ('Forte', size)
+        """Draw text on the canvas."""
+        font = ('Calibri', size, 'bold')
         return self.canvas.create_text(x, y, text=text,
                                        font=font)
 
     def update_hud(self):
+        """Update the HUD by drawing the score and lives."""
         lives_text = 'Lives: %s' % self.lives
         score_text = 'Score: %s' % self.score
         if self.hud is None:
@@ -175,29 +193,39 @@ class Game(tk.Frame):
             self.canvas.itemconfig(self.hud['score'], text=score_text)
 
     def start_game(self):
+        """Start the game by unbinding the space key and deleting the start text."""
         self.canvas.unbind('<space>')
         self.canvas.delete(self.text)
         self.paddle.ball = None
         self.game_loop()
 
     def game_loop(self):
+        """The main game loop that updates the ball and checks for collisions."""
         self.check_collisions()
         num_bricks = len(self.canvas.find_withtag('brick'))
         if num_bricks == 0: 
             self.ball.speed = None
-            self.draw_text(300, 200, 'Congratulations! You Won!.')
+            self.draw_text(300, 200, 'Congratulations! You Won!\nScore: %s' % self.score)
         elif self.ball.get_position()[3] >= self.height: 
             self.ball.speed = None
             self.lives -= 1
             if self.lives < 0:
                 self.draw_text(300, 200, 'Loser! Game Over!\nScore: %s' % self.score)
             else:
+                self.animate_ball_fall()
                 self.after(1000, self.setup_game)
         else:
             self.ball.update()
             self.after(50, self.game_loop)
 
+    def animate_ball_fall(self):
+        """Animate the ball when it falls to the ground."""
+        for i in range(5):
+            self.canvas.after(i * 100, lambda: self.canvas.itemconfig(self.ball.item, fill='red'))
+            self.canvas.after(i * 100 + 50, lambda: self.canvas.itemconfig(self.ball.item, fill=''))
+
     def check_collisions(self):
+        """Check for collisions between the ball and the game objects."""
         ball_coords = self.ball.get_position()
         items = self.canvas.find_overlapping(*ball_coords)
         objects = [self.items[x] for x in items if x in self.items]
@@ -213,3 +241,4 @@ if __name__ == '__main__':
     root.title('Break those Bricks!')
     game = Game(root)
     game.mainloop()
+
