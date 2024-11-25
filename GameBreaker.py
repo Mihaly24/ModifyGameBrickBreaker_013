@@ -130,7 +130,7 @@ class Game(tk.Frame):
         self.lives = 1
         self.score = 0
         self.width = 830
-        self.height = 400
+        self.height = 450
         self.canvas = tk.Canvas(self, bg='#FF78F0',
                                 width=self.width,
                                 height=self.height,)
@@ -139,7 +139,7 @@ class Game(tk.Frame):
 
         self.items = {}
         self.ball = None
-        self.paddle = Paddle(self.canvas, self.width/2, 326)
+        self.paddle = Paddle(self.canvas, self.width/2, 350)
         self.items[self.paddle.item] = self.paddle
         for x in range(5, self.width - 5, 75):
             self.add_brick(x + 37.5, 30, 4)
