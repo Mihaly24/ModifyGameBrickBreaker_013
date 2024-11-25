@@ -21,7 +21,7 @@ class Ball(GameObject):
         self.radius = 10
         self.direction = [1, -1]
         # increase the below value to increase the speed of ball
-        self.speed = 5
+        self.speed = 7
         item = canvas.create_oval(x-self.radius, y-self.radius,
                                   x+self.radius, y+self.radius,
                                   fill='#B6FFFA')
@@ -56,7 +56,6 @@ class Ball(GameObject):
         for game_object in game_objects:
             if isinstance(game_object, Brick):
                 game_object.hit()
-
 
 class Paddle(GameObject):
     def __init__(self, canvas, x, y):
@@ -116,7 +115,7 @@ class Game(tk.Frame):
         self.lives = 3
         self.width = 610
         self.height = 400
-        self.canvas = tk.Canvas(self, bg='#D6D1F5',
+        self.canvas = tk.Canvas(self, bg='#FF78F0',
                                 width=self.width,
                                 height=self.height,)
         self.canvas.pack()
@@ -200,6 +199,8 @@ class Game(tk.Frame):
         items = self.canvas.find_overlapping(*ball_coords)
         objects = [self.items[x] for x in items if x in self.items]
         self.ball.collide(objects)
+        
+    
 
 
 
@@ -208,3 +209,4 @@ if __name__ == '__main__':
     root.title('Break those Bricks!')
     game = Game(root)
     game.mainloop()
+
