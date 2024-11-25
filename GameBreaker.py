@@ -67,7 +67,7 @@ class Paddle(GameObject):
                                        y - self.height / 2,
                                        x + self.width / 2,
                                        y + self.height / 2,
-                                       fill='#FFB643')
+                                       fill='#6528F7')
         super(Paddle, self).__init__(canvas, item)
 
     def set_ball(self, ball):
@@ -83,7 +83,7 @@ class Paddle(GameObject):
 
 
 class Brick(GameObject):
-    COLORS = {1: '#15F5BA', 2: '#836FFF', 3: '#211951'}
+    COLORS = {1: '#15F5BA', 2: '#836FFF', 3: '#211951', 4: '#000000'}
 
     def __init__(self, canvas, x, y, hits):
         self.width = 75
@@ -108,7 +108,7 @@ class Brick(GameObject):
             self.canvas.after(150, self.delete)
         else:
             self.canvas.itemconfig(self.item,
-                                   fill=Brick.COLORS[self.hits])
+                                    fill=Brick.COLORS[self.hits])
 
 class Game(tk.Frame):
     def __init__(self, master):
@@ -128,6 +128,7 @@ class Game(tk.Frame):
         self.items[self.paddle.item] = self.paddle
         # adding brick with different hit capacities - 3,2 and 1
         for x in range(5, self.width - 5, 75):
+            self.add_brick(x + 37.5, 30, 4)
             self.add_brick(x + 37.5, 50, 3)
             self.add_brick(x + 37.5, 70, 2)
             self.add_brick(x + 37.5, 90, 1)
@@ -167,7 +168,7 @@ class Game(tk.Frame):
     def update_lives_text(self):
         text = 'Lives: %s' % self.lives
         if self.hud is None:
-            self.hud = self.draw_text(50, 20, text, 15)
+            self.hud = self.draw_text(50, 10, text, 15)
         else:
             self.canvas.itemconfig(self.hud, text=text)
 
