@@ -100,11 +100,15 @@ class Brick(GameObject):
     def hit(self):
         self.hits -= 1
         if self.hits == 0:
-            self.delete()
+            coords = self.get_position()
+            self.canvas.move(self.item, -3, -3)
+            self.canvas.scale(self.item, *coords[:2], 1.1, 1.1)
+            self.canvas.after(50, lambda: self.canvas.move(self.item, 3, 3))
+            self.canvas.after(100, lambda: self.canvas.scale(self.item, *coords[:2], 1.0, 1.0))
+            self.canvas.after(150, self.delete)
         else:
             self.canvas.itemconfig(self.item,
                                    fill=Brick.COLORS[self.hits])
-
 
 class Game(tk.Frame):
     def __init__(self, master):
