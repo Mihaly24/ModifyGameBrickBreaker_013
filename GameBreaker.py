@@ -113,6 +113,7 @@ class Game(tk.Frame):
     def __init__(self, master):
         super(Game, self).__init__(master)
         self.lives = 3
+        self.score = 0
         self.width = 610
         self.height = 400
         self.canvas = tk.Canvas(self, bg='#FF78F0',
@@ -125,7 +126,6 @@ class Game(tk.Frame):
         self.ball = None
         self.paddle = Paddle(self.canvas, self.width/2, 326)
         self.items[self.paddle.item] = self.paddle
-        # adding brick with different hit capacities - 3,2 and 1
         for x in range(5, self.width - 5, 75):
             self.add_brick(x + 37.5, 30, 4)
             self.add_brick(x + 37.5, 50, 3)
@@ -141,11 +141,11 @@ class Game(tk.Frame):
                          lambda _: self.paddle.move(10))
 
     def setup_game(self):
-           self.add_ball()
-           self.update_lives_text()
-           self.text = self.draw_text(300, 200,
-                                      'Press Space to start')
-           self.canvas.bind('<space>', lambda _: self.start_game())
+        self.add_ball()
+        self.update_hud()
+        self.text = self.draw_text(300, 200,
+                                   'Press Space to start')
+        self.canvas.bind('<space>', lambda _: self.start_game())
 
     def add_ball(self):
         if self.ball is not None:
@@ -164,12 +164,16 @@ class Game(tk.Frame):
         return self.canvas.create_text(x, y, text=text,
                                        font=font)
 
-    def update_lives_text(self):
-        text = 'Lives: %s' % self.lives
+    def update_hud(self):
+        lives_text = 'Lives: %s' % self.lives
+        score_text = 'Score: %s' % self.score
         if self.hud is None:
-            self.hud = self.draw_text(50, 10, text, 15)
+            self.hud = {}
+            self.hud['lives'] = self.draw_text(50, 10, lives_text, 15)
+            self.hud['score'] = self.draw_text(550, 10, score_text, 15)
         else:
-            self.canvas.itemconfig(self.hud, text=text)
+            self.canvas.itemconfig(self.hud['lives'], text=lives_text)
+            self.canvas.itemconfig(self.hud['score'], text=score_text)
 
     def start_game(self):
         self.canvas.unbind('<space>')
@@ -182,12 +186,12 @@ class Game(tk.Frame):
         num_bricks = len(self.canvas.find_withtag('brick'))
         if num_bricks == 0: 
             self.ball.speed = None
-            self.draw_text(300, 200, 'You win! You the Breaker of Bricks.')
+            self.draw_text(300, 200, 'Congratulations! You Won!.')
         elif self.ball.get_position()[3] >= self.height: 
             self.ball.speed = None
             self.lives -= 1
             if self.lives < 0:
-                self.draw_text(300, 200, 'You Lose! Game Over!')
+                self.draw_text(300, 200, 'Loser! Game Over!')
             else:
                 self.after(1000, self.setup_game)
         else:
@@ -199,14 +203,13 @@ class Game(tk.Frame):
         items = self.canvas.find_overlapping(*ball_coords)
         objects = [self.items[x] for x in items if x in self.items]
         self.ball.collide(objects)
-        
-    
-
-
+        for obj in objects:
+            if isinstance(obj, Brick):
+                self.score += 10
+                self.update_hud()
 
 if __name__ == '__main__':
     root = tk.Tk()
     root.title('Break those Bricks!')
     game = Game(root)
     game.mainloop()
-
