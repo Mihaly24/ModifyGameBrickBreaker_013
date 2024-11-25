@@ -60,7 +60,7 @@ class Ball(GameObject):
 
 class Paddle(GameObject):
     def __init__(self, canvas, x, y):
-        self.width = 80
+        self.width = 50
         self.height = 10
         self.ball = None
         item = canvas.create_rectangle(x - self.width / 2,
