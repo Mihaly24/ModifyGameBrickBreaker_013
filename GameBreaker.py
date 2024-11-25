@@ -1,6 +1,5 @@
 import tkinter as tk
-import pygame
-from pygame import mixer
+
 
 class GameObject(object):
     """A generic game object."""
@@ -138,9 +137,6 @@ class Game(tk.Frame):
     """The main game class."""
     def __init__(self, master):
         super(Game, self).__init__(master)
-        mixer.init()
-        mixer.music.load('Dimensional_War.mp3')
-        mixer.music.play(-1)
         self.lives = 1
         self.score = 0
         self.width = 830
@@ -179,14 +175,27 @@ class Game(tk.Frame):
     def add_thorns(self):
         """Add thorns at the bottom of the game area."""
         thorn_height = 10
+        self.thorns = []
         for x in range(0, self.width, 20):
-            self.canvas.create_polygon(
+            thorn = self.canvas.create_polygon(
                 x, self.height,
                 x + 10, self.height - thorn_height,
                 x + 20, self.height,
                 fill='#000000',
                 outline='#000000'
             )
+            self.thorns.append(thorn)
+        self.animate_thorns()
+
+    def animate_thorns(self):
+        """Animate the thorns to move horizontally."""
+        for thorn in self.thorns:
+            coords = self.canvas.coords(thorn)
+            if coords[0] < 0:
+                self.canvas.move(thorn, self.width, 0)
+            else:
+                self.canvas.move(thorn, -2, 0)
+        self.after(16, self.animate_thorns)
     def setup_game(self):
         """Set up the game by creating the ball and drawing the HUD."""
         self.add_ball()
