@@ -24,7 +24,7 @@ class Ball(GameObject):
     def __init__(self, canvas, x, y):
         self.radius = 10
         self.direction = [1, -1]
-        self.speed = 8
+        self.speed = 10
         item = canvas.create_oval(x-self.radius, y-self.radius,
                                   x+self.radius, y+self.radius,
                                   fill='#B6FFFA')
@@ -110,19 +110,26 @@ class Brick(GameObject):
         """Hit the brick and decrease its hits."""
         self.hits -= 1
         if self.hits <= 0:
-            self.delete()
+            self.animate_delete()
         else:
             new_color = Brick.COLORS.get(self.hits, '')
             self.canvas.itemconfig(self.item, fill=new_color)
+
+    def animate_delete(self):
+        """Animate the brick before deleting it."""
+        for i in range(5):
+            self.canvas.after(i * 100, lambda: self.canvas.itemconfig(self.item, fill='red'))
+            self.canvas.after(i * 100 + 50, lambda: self.canvas.itemconfig(self.item, fill=''))
+        self.canvas.after(500, lambda: self.delete())
 
 
 class Game(tk.Frame):
     """The main game class."""
     def __init__(self, master):
         super(Game, self).__init__(master)
-        self.lives = 3
+        self.lives = 1
         self.score = 0
-        self.width = 610
+        self.width = 830
         self.height = 400
         self.canvas = tk.Canvas(self, bg='#FF78F0',
                                 width=self.width,
@@ -136,9 +143,13 @@ class Game(tk.Frame):
         self.items[self.paddle.item] = self.paddle
         for x in range(5, self.width - 5, 75):
             self.add_brick(x + 37.5, 30, 4)
-            self.add_brick(x + 37.5, 50, 3)
-            self.add_brick(x + 37.5, 70, 2)
-            self.add_brick(x + 37.5, 90, 1)
+            self.add_brick(x + 37.5, 50, 4)
+            self.add_brick(x + 37.5, 70, 3)
+            self.add_brick(x + 37.5, 90, 3)
+            self.add_brick(x + 37.5, 110, 2)
+            self.add_brick(x + 37.5, 130, 2)
+            self.add_brick(x + 37.5, 150, 1)
+            self.add_brick(x + 37.5, 170, 1)
 
         self.hud = None
         self.setup_game()
@@ -152,7 +163,7 @@ class Game(tk.Frame):
         """Set up the game by creating the ball and drawing the HUD."""
         self.add_ball()
         self.update_hud()
-        self.text = self.draw_text(300, 200,
+        self.text = self.draw_text(400, 200,
                                    'Press Space to start')
         self.canvas.bind('<space>', lambda _: self.start_game())
 
@@ -183,7 +194,7 @@ class Game(tk.Frame):
         if self.hud is None:
             self.hud = {}
             self.hud['lives'] = self.draw_text(50, 10, lives_text, 15)
-            self.hud['score'] = self.draw_text(550, 10, score_text, 15)
+            self.hud['score'] = self.draw_text(775, 10, score_text, 15)
         else:
             self.canvas.itemconfig(self.hud['lives'], text=lives_text)
             self.canvas.itemconfig(self.hud['score'], text=score_text)
@@ -201,12 +212,12 @@ class Game(tk.Frame):
         num_bricks = len(self.canvas.find_withtag('brick'))
         if num_bricks == 0: 
             self.ball.speed = None
-            self.draw_text(300, 200, 'Congratulations! You Won!\nScore: %s' % self.score)
+            self.draw_text(400, 200, 'Congratulations! You Won!\nScore: %s' % self.score)
         elif self.ball.get_position()[3] >= self.height: 
             self.ball.speed = None
             self.lives -= 1
             if self.lives < 0:
-                self.draw_text(300, 200, 'Loser! Game Over!\nScore: %s' % self.score)
+                self.draw_text(400, 200, '👎Loser! Game Over!👎\nScore: %s' % self.score)
             else:
                 self.animate_ball_fall()
                 self.after(1000, self.setup_game)
@@ -235,6 +246,7 @@ class Game(tk.Frame):
 
 if __name__ == '__main__':
     root = tk.Tk()
-    root.title('Break those Bricks!')
+    root.title('Ball Brick Breaker (Expert Mode 😈)')
     game = Game(root)
     game.mainloop()
+
