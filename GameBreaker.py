@@ -155,9 +155,9 @@ class Game(tk.Frame):
         self.setup_game()
         self.canvas.focus_set()
         self.canvas.bind('<Left>',
-                         lambda _: self.paddle.move(-10))
+                         lambda _: self.paddle.move(-15))
         self.canvas.bind('<Right>',
-                         lambda _: self.paddle.move(10))
+                         lambda _: self.paddle.move(15))
 
     def setup_game(self):
         """Set up the game by creating the ball and drawing the HUD."""
@@ -249,4 +249,5 @@ if __name__ == '__main__':
     root.title('Ball Brick Breaker (Expert Mode 😈)')
     game = Game(root)
     game.mainloop()
+
 
