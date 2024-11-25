@@ -1,4 +1,6 @@
 import tkinter as tk
+import pygame
+from pygame import mixer
 
 class GameObject(object):
     """A generic game object."""
@@ -45,18 +47,36 @@ class Ball(GameObject):
     def collide(self, game_objects):
         """Check for collisions with the game objects."""
         coords = self.get_position()
-        x = (coords[0] + coords[2]) * 0.5
+        x = (coords[0] + coords[2]) * 0.5  # Center of the ball
         if len(game_objects) > 1:
             self.direction[1] *= -1
         elif len(game_objects) == 1:
             game_object = game_objects[0]
-            coords = game_object.get_position()
-            if x > coords[2]:
-                self.direction[0] = 1
-            elif x < coords[0]:
-                self.direction[0] = -1
-            else:
+            if isinstance(game_object, Paddle):
+                paddle_coords = game_object.get_position()
+                # Calculate the center of the paddle
+                paddle_center = (paddle_coords[0] + paddle_coords[2]) / 2
+                # Calculate where the ball hits the paddle
+                hit_position = x - paddle_center
+                
+                # Normalize hit position to get a bounce angle
+                normalized_hit_position = hit_position / (game_object.width / 2)
+                # Limit the bounce angle to be between -1 and 1
+                normalized_hit_position = max(-1, min(1, normalized_hit_position))
+                
+                # Set the horizontal direction based on hit position
+                self.direction[0] = normalized_hit_position
+                
+                # Reverse the vertical direction
                 self.direction[1] *= -1
+            else:
+                coords = game_object.get_position()
+                if x > coords[2]:
+                    self.direction[0] = 1
+                elif x < coords[0]:
+                    self.direction[0] = -1
+                else:
+                    self.direction[1] *= -1
 
         for game_object in game_objects:
             if isinstance(game_object, Brick):
@@ -127,6 +147,9 @@ class Game(tk.Frame):
     """The main game class."""
     def __init__(self, master):
         super(Game, self).__init__(master)
+        mixer.init()
+        mixer.music.load('Dimensional_War.mp3')
+        mixer.music.play(-1)
         self.lives = 1
         self.score = 0
         self.width = 830
@@ -249,5 +272,3 @@ if __name__ == '__main__':
     root.title('Brick Breaker (Expert Mode 😈)')
     game = Game(root)
     game.mainloop()
-
-
