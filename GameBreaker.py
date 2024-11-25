@@ -24,7 +24,7 @@ class Ball(GameObject):
         self.speed = 5
         item = canvas.create_oval(x-self.radius, y-self.radius,
                                   x+self.radius, y+self.radius,
-                                  fill='white')
+                                  fill='#B6FFFA')
         super(Ball, self).__init__(canvas, item)
 
     def update(self):
@@ -83,7 +83,7 @@ class Paddle(GameObject):
 
 
 class Brick(GameObject):
-    COLORS = {1: '#4535AA', 2: '#ED639E', 3: '#8FE1A2'}
+    COLORS = {1: '#15F5BA', 2: '#836FFF', 3: '#211951'}
 
     def __init__(self, canvas, x, y, hits):
         self.width = 75
