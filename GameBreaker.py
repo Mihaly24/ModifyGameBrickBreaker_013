@@ -26,7 +26,7 @@ class Ball(GameObject):
     def __init__(self, canvas, x, y):
         self.radius = 10
         self.direction = [1, -1]
-        self.speed = 10
+        self.speed = 12
         item = canvas.create_oval(x-self.radius, y-self.radius,
                                   x+self.radius, y+self.radius,
                                   fill='#B6FFFA')
@@ -54,34 +54,25 @@ class Ball(GameObject):
             game_object = game_objects[0]
             if isinstance(game_object, Paddle):
                 paddle_coords = game_object.get_position()
-                # Calculate the center of the paddle
                 paddle_center = (paddle_coords[0] + paddle_coords[2]) / 2
-                # Calculate where the ball hits the paddle
                 hit_position = x - paddle_center
-                
-                # Normalize hit position to get a bounce angle
                 normalized_hit_position = hit_position / (game_object.width / 2)
-                # Limit the bounce angle to be between -1 and 1
                 normalized_hit_position = max(-1, min(1, normalized_hit_position))
-                
-                # Set the horizontal direction based on hit position
                 self.direction[0] = normalized_hit_position
-                
-                # Reverse the vertical direction
                 self.direction[1] *= -1
             else:
                 coords = game_object.get_position()
-                if x > coords[2]:
+                if x > coords[2] and x - coords[2] < self.speed:
                     self.direction[0] = 1
-                elif x < coords[0]:
+                elif x < coords[0] and coords[0] - x < self.speed:
                     self.direction[0] = -1
                 else:
                     self.direction[1] *= -1
+                self.speed = 12
 
         for game_object in game_objects:
             if isinstance(game_object, Brick):
                 game_object.hit()
-
 
 class Paddle(GameObject):
     """A paddle that can move left and right."""
@@ -259,7 +250,8 @@ class Game(tk.Frame):
         ball_coords = self.ball.get_position()
         items = self.canvas.find_overlapping(*ball_coords)
         objects = [self.items[x] for x in items if x in self.items]
-        self.ball.collide(objects)
+        if objects:
+            self.ball.collide(objects)
         for obj in objects:
             if isinstance(obj, Brick):
                 self.score += 10
@@ -272,3 +264,4 @@ if __name__ == '__main__':
     root.title('Brick Breaker (Expert Mode 😈)')
     game = Game(root)
     game.mainloop()
+
