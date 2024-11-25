@@ -1,6 +1,5 @@
 import tkinter as tk
 
-
 class GameObject(object):
     def __init__(self, canvas, item):
         self.canvas = canvas
@@ -20,7 +19,6 @@ class Ball(GameObject):
     def __init__(self, canvas, x, y):
         self.radius = 10
         self.direction = [1, -1]
-        # increase the below value to increase the speed of ball
         self.speed = 7
         item = canvas.create_oval(x-self.radius, y-self.radius,
                                   x+self.radius, y+self.radius,
@@ -56,6 +54,7 @@ class Ball(GameObject):
         for game_object in game_objects:
             if isinstance(game_object, Brick):
                 game_object.hit()
+
 
 class Paddle(GameObject):
     def __init__(self, canvas, x, y):
@@ -100,14 +99,14 @@ class Brick(GameObject):
         self.hits -= 1
         if self.hits == 0:
             coords = self.get_position()
-            self.canvas.move(self.item, -3, -3)
-            self.canvas.scale(self.item, *coords[:2], 1.1, 1.1)
-            self.canvas.after(50, lambda: self.canvas.move(self.item, 3, 3))
-            self.canvas.after(100, lambda: self.canvas.scale(self.item, *coords[:2], 1.0, 1.0))
-            self.canvas.after(150, self.delete)
+            for i in range(5):
+                self.canvas.after(i * 100, lambda: self.canvas.itemconfig(self.item, fill='red'))
+                self.canvas.after(i * 100 + 50, lambda: self.canvas.itemconfig(self.item, fill=''))
+            self.canvas.after(500, self.delete)
         else:
             self.canvas.itemconfig(self.item,
                                     fill=Brick.COLORS[self.hits])
+
 
 class Game(tk.Frame):
     def __init__(self, master):
@@ -191,7 +190,7 @@ class Game(tk.Frame):
             self.ball.speed = None
             self.lives -= 1
             if self.lives < 0:
-                self.draw_text(300, 200, 'Loser! Game Over!')
+                self.draw_text(300, 200, 'Loser! Game Over!\nScore: %s' % self.score)
             else:
                 self.after(1000, self.setup_game)
         else:
@@ -207,6 +206,7 @@ class Game(tk.Frame):
             if isinstance(obj, Brick):
                 self.score += 10
                 self.update_hud()
+
 
 if __name__ == '__main__':
     root = tk.Tk()
